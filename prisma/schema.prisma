@@ -1,0 +1,362 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Answer {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  questionId Int       @map("question_id") @db.UnsignedInt
+  definition String    @db.Text
+  order      Int       @db.TinyInt
+  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt  DateTime? @updatedAt @map("updated_at") @db.Timestamp(0)
+  question   Question  @relation(fields: [questionId], references: [id])
+
+  @@index([questionId], name: "answers_question_id_foreign")
+  @@map("answers")
+}
+
+model Attachment {
+  id        Int       @id @default(autoincrement()) @db.UnsignedInt
+  messageId Int       @map("message_id") @db.UnsignedInt
+  name      String    @db.VarChar(255)
+  url       String    @db.VarChar(255)
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt DateTime? @updatedAt @map("updated_at") @db.Timestamp(0)
+  message   Message   @relation(fields: [messageId], references: [id])
+
+  @@index([messageId], name: "attachments_message_id_foreign")
+  @@map("attachments")
+}
+
+model Category {
+  id        Int       @id @default(autoincrement()) @db.UnsignedInt
+  name      String    @db.VarChar(255)
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt DateTime? @updatedAt @map("updated_at") @db.Timestamp(0)
+  projects  Project[]
+
+  @@map("categories")
+}
+
+model Conversation {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  fromId     Int       @map("from_id") @db.UnsignedInt
+  toId       Int       @map("to_id") @db.UnsignedInt
+  unreadFrom Int       @default(0) @map("unread_from") @db.TinyInt
+  unreadTo   Int       @default(0) @map("unread_to") @db.TinyInt
+  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt  DateTime? @updatedAt @map("updated_at") @db.Timestamp(0)
+  sender     User      @relation("conversations_from_idTousers", fields: [fromId], references: [id])
+  recipient  User      @relation("conversations_to_idTousers", fields: [toId], references: [id])
+  messages   Message[]
+
+  @@index([fromId], name: "conversations_from_id_foreign")
+  @@index([toId], name: "conversations_to_id_foreign")
+  @@map("conversations")
+}
+
+model events {
+  id                             Int       @id @default(autoincrement()) @db.UnsignedInt
+  casting_id                     Int       @db.UnsignedInt
+  actor_id                       Int       @db.UnsignedInt
+  role_id                        Int?      @db.UnsignedInt
+  unread_casting                 Int       @default(0) @db.TinyInt
+  unread_actor                   Int       @default(0) @db.TinyInt
+  start_at                       DateTime? @db.Timestamp(0)
+  end_at                         DateTime? @db.Timestamp(0)
+  createdAt                      DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt                      DateTime? @updatedAt @map("updated_at") @db.Timestamp(0)
+  users_events_actor_idTousers   User      @relation("events_actor_idTousers", fields: [actor_id], references: [id])
+  users_events_casting_idTousers User      @relation("events_casting_idTousers", fields: [casting_id], references: [id])
+  roles                          Role?     @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  @@index([actor_id], name: "events_actor_id_foreign")
+  @@index([casting_id], name: "events_casting_id_foreign")
+  @@index([role_id], name: "events_role_id_foreign")
+}
+
+model Headshot {
+  id               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  userId           Int       @map("user_id") @db.UnsignedInt
+  image            String    @db.VarChar(255)
+  isProfilePicture Boolean   @default(false) @map("is_profile_picture")
+  createdAt        DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt        DateTime? @updatedAt @map("updated_at") @db.Timestamp(0)
+  user             User      @relation(fields: [userId], references: [id])
+
+  @@map("headshots")
+}
+
+model Message {
+  id             Int          @id @default(autoincrement()) @db.UnsignedInt
+  conversationId Int          @map("conversation_id") @db.UnsignedInt
+  fromId         Int          @map("from_id") @db.UnsignedInt
+  toId           Int          @map("to_id") @db.UnsignedInt
+  body           String       @db.Text
+  createdAt      DateTime?    @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt      DateTime?    @updatedAt @map("updated_at") @db.Timestamp(0)
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  sender         User         @relation("messages_from_idTousers", fields: [fromId], references: [id])
+  recipient      User         @relation("messages_to_idTousers", fields: [toId], references: [id])
+  attachments    Attachment[]
+
+  @@index([conversationId], name: "messages_conversation_id_foreign")
+  @@index([fromId], name: "messages_from_id_foreign")
+  @@index([toId], name: "messages_to_id_foreign")
+  @@map("messages")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model password_resets {
+  email     String    @db.VarChar(255)
+  token     String    @db.VarChar(255)
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+
+  @@index([email], name: "password_resets_email_index")
+  @@ignore
+}
+
+model potential_users {
+  id        Int                   @id @default(autoincrement()) @db.UnsignedInt
+  email     String                @unique @db.VarChar(255)
+  role      potential_users_role?
+  createdAt DateTime?             @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt DateTime?             @updatedAt @map("updated_at") @db.Timestamp(0)
+}
+
+model Project {
+  id              Int       @id @default(autoincrement()) @db.UnsignedInt
+  userId          Int       @map("user_id") @db.UnsignedInt
+  categoryId      Int       @map("category_id") @db.UnsignedInt
+  name            String    @db.VarChar(255)
+  description     String    @db.Text
+  location        String    @default("") @db.VarChar(255)
+  startDate       DateTime? @map("start_date") @db.Timestamp(0)
+  companyName     String?   @map("company_name") @db.VarChar(255)
+  workerType      Int       @map("worker_type") @db.UnsignedTinyInt
+  status          Int       @db.UnsignedTinyInt
+  director        String?   @db.VarChar(50)
+  producer        String?   @db.VarChar(50)
+  writer          String?   @db.VarChar(50)
+  castingDirector String?   @map("casting_director") @db.VarChar(50)
+  createdAt       DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt       DateTime? @updatedAt @map("updated_at") @db.Timestamp(0)
+  category        Category  @relation(fields: [categoryId], references: [id])
+  user            User      @relation(fields: [userId], references: [id])
+  roles           Role[]
+
+  @@index([categoryId], name: "projects_category_id_foreign")
+  @@index([userId], name: "projects_user_id_foreign")
+  @@map("projects")
+}
+
+model RoleRequirement {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  roleId     Int       @map("role_id") @db.UnsignedInt
+  questionId Int       @map("question_id") @db.UnsignedInt
+  importance Int?      @db.UnsignedTinyInt
+  answer     String    @db.VarChar(255)
+  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt  DateTime? @updatedAt @map("updated_at") @db.Timestamp(0)
+  question   Question  @relation(fields: [questionId], references: [id])
+  roles      Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@index([questionId], name: "question_role_question_id_foreign")
+  @@index([roleId], name: "question_role_role_id_foreign")
+  @@map("question_role")
+}
+
+model Section {
+  id              Int        @id @default(autoincrement()) @db.UnsignedInt
+  castingTitle    String     @map("casting_title") @db.VarChar(255)
+  actorTitle      String     @map("actor_title") @db.VarChar(255)
+  castingSubtitle String     @map("casting_subtitle") @db.VarChar(255)
+  actorSubtitle   String     @map("actor_subtitle") @db.VarChar(255)
+  castingHint     String     @map("casting_hint") @db.VarChar(255)
+  actorHint       String     @map("actor_hint") @db.VarChar(255)
+  createdAt       DateTime?  @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt       DateTime?  @updatedAt @map("updated_at") @db.Timestamp(0)
+  questions       Question[]
+
+  @@map("question_sections")
+}
+
+model QuestionnaireAnswer {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  questionId Int       @map("question_id") @db.UnsignedInt
+  userId     Int       @map("user_id") @db.UnsignedInt
+  answer     String    @db.VarChar(255)
+  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt  DateTime? @updatedAt @map("updated_at") @db.Timestamp(0)
+  question   Question  @relation(fields: [questionId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
+
+  @@index([questionId], name: "question_user_question_id_foreign")
+  @@index([userId], name: "question_user_user_id_foreign")
+  @@map("question_user")
+}
+
+model Question {
+  id                 Int                   @id @default(autoincrement()) @db.UnsignedInt
+  sectionId          Int                   @map("section_id") @db.UnsignedInt
+  definition         String                @db.Text
+  type               Int                   @db.UnsignedTinyInt
+  differentialPoints Int                   @map("differential_points") @db.UnsignedTinyInt
+  required           Int                   @db.UnsignedTinyInt
+  importanceRequired Int                   @map("importance_required") @db.UnsignedTinyInt
+  createdAt          DateTime?             @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt          DateTime?             @updatedAt @map("updated_at") @db.Timestamp(0)
+  section            Section               @relation(fields: [sectionId], references: [id])
+  answers            Answer[]
+  roles              RoleRequirement[]
+  users              QuestionnaireAnswer[]
+
+  @@index([sectionId], name: "questions_section_id_foreign")
+  @@map("questions")
+}
+
+model rates {
+  id                            Int       @id @default(autoincrement()) @db.UnsignedInt
+  casting_id                    Int       @db.UnsignedInt
+  actor_id                      Int       @db.UnsignedInt
+  rating                        Int       @db.TinyInt
+  createdAt                     DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt                     DateTime? @updatedAt @map("updated_at") @db.Timestamp(0)
+  users_rates_actor_idTousers   User      @relation("rates_actor_idTousers", fields: [actor_id], references: [id])
+  users_rates_casting_idTousers User      @relation("rates_casting_idTousers", fields: [casting_id], references: [id])
+
+  @@index([actor_id], name: "rates_actor_id_foreign")
+  @@index([casting_id], name: "rates_casting_id_foreign")
+}
+
+model Reel {
+  id        BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  userId    Int       @map("user_id") @db.UnsignedInt
+  user      User      @relation(fields: [userId], references: [id])
+  link      String    @db.VarChar(255)
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt DateTime? @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  @@map("reels")
+}
+
+model Applicant {
+  id        Int       @id @default(autoincrement()) @db.UnsignedInt
+  roleId    Int       @map("role_id") @db.UnsignedInt
+  userId    Int       @map("user_id") @db.UnsignedInt
+  seen      Int       @default(0) @db.TinyInt
+  starred   Int       @default(0) @db.TinyInt
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt DateTime? @updatedAt @map("updated_at") @db.Timestamp(0)
+  role      Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@unique([roleId, userId], name: "roleApplicant", map: "role_user_unique_constraint")
+  @@index([roleId], name: "role_user_role_id_foreign")
+  @@index([userId], name: "role_user_user_id_foreign")
+  @@map("role_user")
+}
+
+model Role {
+  id            Int               @id @default(autoincrement()) @db.UnsignedInt
+  projectId     Int               @map("project_id") @db.UnsignedInt
+  winnerId      Int?              @map("winner_id") @db.UnsignedInt
+  name          String            @db.VarChar(255)
+  description   String            @db.Text
+  createdAt     DateTime          @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime?         @updatedAt @map("updated_at") @db.Timestamp(0)
+  project       Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  selectedActor User?             @relation(fields: [winnerId], references: [id])
+  events        events[]
+  requirements  RoleRequirement[]
+  applicants    Applicant[]
+  invitedTalent RoleInvitation[]
+
+  @@index([projectId], name: "roles_project_id_foreign")
+  @@index([winnerId], name: "roles_winner_id_foreign")
+  @@map("roles")
+}
+
+model User {
+  id                              Int                   @id @default(autoincrement()) @db.UnsignedInt
+  name                            String                @db.VarChar(255)
+  email                           String                @unique @db.VarChar(255)
+  resume                          String                @default("") @db.VarChar(255)
+  imdbProfile                     String                @default("") @map("imdb_profile") @db.VarChar(255)
+  unionStatus                     String                @default("") @map("union_status") @db.VarChar(255)
+  role                            Int                   @db.TinyInt
+  emailsInbox                     Int                   @default(1) @map("emails_inbox") @db.TinyInt
+  emailsSchedule                  Int                   @default(1) @map("emails_schedule") @db.TinyInt
+  emailVerifiedAt                 DateTime?             @map("email_verified_at") @db.Timestamp(0)
+  password                        String                @db.VarChar(255)
+  location                        String                @default("") @db.VarChar(255)
+  verified                        Int                   @default(0) @db.TinyInt
+  verificationCode                String?               @map("verification_code") @db.VarChar(255)
+  rememberToken                   String?               @map("remember_token") @db.VarChar(100)
+  stripeId                        String?               @map("stripe_id") @db.VarChar(255)
+  cardBrand                       String?               @map("card_brand") @db.VarChar(255)
+  cardLastFour                    String?               @map("card_last_four") @db.VarChar(255)
+  trialEndsAt                     DateTime?             @map("trial_ends_at") @db.Timestamp(0)
+  createdAt                       DateTime?             @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt                       DateTime?             @updatedAt @map("updated_at") @db.Timestamp(0)
+  referredBy                      String?               @map("referred_by") @db.VarChar(255)
+  startedConversations            Conversation[]        @relation("conversations_from_idTousers")
+  joinedConversations             Conversation[]        @relation("conversations_to_idTousers")
+  events_events_actor_idTousers   events[]              @relation("events_actor_idTousers")
+  events_events_casting_idTousers events[]              @relation("events_casting_idTousers")
+  sentMessages                    Message[]             @relation("messages_from_idTousers")
+  receivedMessages                Message[]             @relation("messages_to_idTousers")
+  headshots                       Headshot[]
+  reels                           Reel[]
+  roleApplications                Applicant[]
+  rolesSelectedFor                Role[]
+  projects                        Project[]
+  questionnaireAnswers            QuestionnaireAnswer[]
+  rates_rates_actor_idTousers     rates[]               @relation("rates_actor_idTousers")
+  rates_rates_casting_idTousers   rates[]               @relation("rates_casting_idTousers")
+  roleInvitations                 RoleInvitation[]
+
+  @@map("users")
+}
+
+model RoleInvitation {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  roleId    Int      @map("role_id") @db.UnsignedInt
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  actorId   Int      @map("actor_id") @db.UnsignedInt
+  actor     User     @relation(fields: [actorId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  @@unique([roleId, actorId], map: "role_actor_unique_constraint")
+  @@map("role_invitations")
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model subscriptions {
+  id            Int       @id @default(autoincrement()) @db.UnsignedInt
+  user_id       Int       @db.UnsignedInt
+  name          String    @db.VarChar(255)
+  stripe_id     String    @db.VarChar(255)
+  stripe_plan   String    @db.VarChar(255)
+  quantity      Int
+  trial_ends_at DateTime? @db.Timestamp(0)
+  ends_at       DateTime? @db.Timestamp(0)
+  createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime? @updatedAt @map("updated_at") @db.Timestamp(0)
+}
+
+enum potential_users_role {
+  actor
+  filmmaker
+}

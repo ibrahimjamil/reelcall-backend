@@ -1,0 +1,62 @@
+{
+  "name": "reelcall-graph",
+  "private": true,
+  "scripts": {
+    "lint": "eslint --ext .js,.ts,.tsx source/",
+    "lint:fix": "eslint --ext .js,.ts,.tsx source/ --fix",
+    "type-check": "tsc --pretty --noEmit",
+    "test": "jest",
+    "prisma:generate": "prisma format && prisma generate",
+    "prisma:reset": "prisma migrate reset --force",
+    "dev": "nodemon source/main.ts",
+    "prod": "ts-node --transpile-only source/main.ts"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.48.0",
+    "@aws-sdk/s3-request-presigner": "^3.48.0",
+    "@prisma/client": "^3.4.2",
+    "@sentry/node": "^6.16.1",
+    "@sentry/tracing": "^6.16.1",
+    "apollo-server": "3.5.0",
+    "apollo-server-core": "3.5.0",
+    "apollo-server-express": "3.5.0",
+    "dayjs": "^1.10.7",
+    "dotenv": "^10.0.0",
+    "graphql": "15.5.2",
+    "handlebars": "^4.7.7",
+    "lodash": "^4.17.21",
+    "node-schedule": "^2.1.0",
+    "nodemailer": "^6.4.18",
+    "ts-node": "^10.4.0",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.16.7",
+    "@babel/preset-env": "^7.16.7",
+    "@babel/preset-typescript": "^7.16.7",
+    "@types/jest": "^27.4.0",
+    "@types/lodash": "^4.14.177",
+    "@types/node-schedule": "^1.3.2",
+    "@types/nodemailer": "^6.4.4",
+    "@typescript-eslint/eslint-plugin": "^5.9.0",
+    "@typescript-eslint/parser": "^5.9.0",
+    "eslint": "^8.6.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-jest": "^25.3.4",
+    "husky": "^7.0.4",
+    "jest": "^27.4.7",
+    "jest-mock-extended": "^2.0.4",
+    "lint-staged": "^12.1.7",
+    "nodemon": "^2.0.15",
+    "plop": "^3.0.5",
+    "prisma": "^3.4.2",
+    "ts-jest": "^27.1.2",
+    "typescript": "^4.5.4"
+  }
+}

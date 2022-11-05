@@ -1,0 +1,73 @@
+export default [
+  {
+    id: 1,
+    castingTitle: "Actor",
+    actorTitle: "",
+    castingSubtitle: "Choose the features you want this role to have",
+    actorSubtitle: "Describe yourself as accurately as possible, so that we can find the roles that are the best fit for you!",
+    castingHint: "",
+    actorHint: "",
+    questions: [
+      {
+        id: 1,
+        definition: "Gender",
+        type: 1,
+        required: 1,
+        answers: [
+          { id: 1, definition: "Male", order: 1 },
+          { id: 2, definition: "Female", order: 2 },
+          { id: 3, definition: "Non-binary", order: 3 },
+          { id: 4, definition: "Other", order: 4 },
+        ],
+      },
+      {
+        id: 2,
+        definition: "Character Age Range",
+        type: 2,
+        required: 0,
+        answers: [
+          { id: 5, definition: "Under 18", order: 1 },
+          { id: 6, definition: "18-25", order: 2 },
+          { id: 7, definition: "26-30", order: 3 },
+          { id: 8, definition: "31-35", order: 4 },
+          { id: 9, definition: "36-40", order: 5 },
+          { id: 10, definition: "41-45", order: 6 },
+          { id: 11, definition: "46-50", order: 7 },
+          { id: 12, definition: "51-55", order: 8 },
+          { id: 13, definition: "56-60", order: 9 },
+          { id: 14, definition: "61-65", order: 10 },
+          { id: 15, definition: "Over 65", order: 11 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 2,
+    castingTitle: "Skills",
+    actorTitle: "Skills",
+    castingSubtitle: "What skills does an actor need for this role?",
+    actorSubtitle: "",
+    castingHint: "What skills are you looking for?",
+    actorHint: "Tell us what you're good at!",
+    questions: [
+      {
+        id: 3,
+        definition: "Performing",
+        type: 3,
+        required: 1,
+        answers: [
+          { id: 16, definition: "Singing", order: 1},
+          { id: 17, definition: "Dancing", order: 2},
+          { id: 18, definition: "Athletic Ability", order: 3},
+        ],
+      },
+      {
+        id: 4,
+        definition: "List a few preferred special skills",
+        type: 4,
+        required: 0,
+        answers: [],
+      },
+    ],
+  },
+];

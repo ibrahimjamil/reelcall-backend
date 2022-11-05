@@ -1,0 +1,15 @@
+# External Artifacts
+.idea
+.DS_Store
+
+# Project Artifacts
+coverage
+build
+logs
+node_modules
+
+# Personalized Config Files
+.env
+
+# editors Config Files
+.vscode

@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    /* Learn more about the compiler options at https://www.typescriptlang.org/tsconfig */
+
+    /* Language and Environment */
+    "lib": [ "esnext", ],
+
+    /* JavaScript Support */
+    "allowJs": false,
+
+    /* Emit */
+    "sourceMap": true,
+    "outDir": "build",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Type Checking */
+    "strict": true,
+
+    /* Completeness */
+    "skipLibCheck": true
+  }
+}
